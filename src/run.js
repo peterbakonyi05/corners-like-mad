@@ -1,4 +1,5 @@
 const { cloneDeep } = require("lodash");
+const { writeFileSync } = require("fs");
 
 function run(g, coordinates, speedX = 1, speedY = 0, currentIndex = 0) {
     const currentCoordinates = coordinates[currentIndex];
@@ -6,14 +7,15 @@ function run(g, coordinates, speedX = 1, speedY = 0, currentIndex = 0) {
 
     // check if done
     if (!nextCoordinates) {
+        let message = "";
         if (g[currentCoordinates.y][currentCoordinates.x] === 3) {
-            console.log("SUCCESS!!! Steps:", coordinates.length);
+            message = `SUCCESS!!! Steps:${coordinates.length}`;
         } else {
             nextCoordinates = { x: currentCoordinates.x + speedX, y: currentCoordinates.y + speedY };
-            console.log("NO MORE COORDINATES. Next coordinates by default:", nextCoordinates);
+            message = `NO MORE COORDINATES. Next coordinates by default:${JSON.stringify(nextCoordinates)}`;
             coordinates.push(nextCoordinates);
         }
-        print(g, coordinates);
+        print(g, coordinates, message);
         return;
     }
 
@@ -30,9 +32,7 @@ function run(g, coordinates, speedX = 1, speedY = 0, currentIndex = 0) {
     }
 
     if (errorMessage) {
-        console.log(errorMessage);
-        print(g, currentCoordinates);
-        console.log(errorMessage, currentIndex, currentCoordinates);
+        print(g, coordinates, `Error: ${errorMessage}. Current index: ${currentIndex + 1}`);
         return;
     }
 
@@ -51,7 +51,7 @@ function isDiffWrong(newSpeed, speed) {
 
 }
 
-function print(g, coordinates) {
+function print2(g, coordinates) {
     const graph = cloneDeep(g);
     for (let i = 0; i < coordinates.length; i++) {
         const c = coordinates[i];
@@ -61,6 +61,35 @@ function print(g, coordinates) {
         console.log(JSON.stringify(graph[i]));
     }
     console.log("==========================");
+}
+
+function print(g, coordinates, message) {
+    const graph = cloneDeep(g);
+    for (let i = 0; i < coordinates.length; i++) {
+        const c = coordinates[i];
+        graph[c.y][c.x] = i === (coordinates.length - 1) ? "N" : "X";
+    }
+    let a = `<style> 
+        span { display: inline-block; width: 15px; height: 15px; }
+        .c-0 { opacity: 0.3; } 
+        .c-1 { opacity: 0.5; } 
+        .c-2 { color: green } 
+        .c-3 { color: green; } 
+        .c-X { color: red; }
+        .c-N { color: yellow }
+    </style>
+    <h4>${message}</h4>`
+
+    for (let i = 0; i < graph.length; i++) {
+        a += "<div>";
+        for (let j = 0; j < graph[i].length; j++) {
+            const v = graph[i][j];
+            a += `<span class="c-${v}">${v}</span>`;
+        }
+        a += "</div>"
+    }
+    writeFileSync("./asd.html", a, { encoding: "UTF-8" });
+
 }
 
 

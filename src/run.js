@@ -5,6 +5,11 @@ function run(g, coordinates, speedX = 1, speedY = 0, currentIndex = 0) {
     const currentCoordinates = coordinates[currentIndex];
     let nextCoordinates = coordinates[currentIndex + 1];
 
+    if (currentIndex === 0 && g[currentCoordinates.y][currentCoordinates.x] !== 2) {
+        // TODO: find and suggest initial coordinate
+        throw new Error("Initial coordinate is wrong");
+    }
+
     // check if done
     if (!nextCoordinates) {
         let message = "";
@@ -15,7 +20,7 @@ function run(g, coordinates, speedX = 1, speedY = 0, currentIndex = 0) {
             message = `NO MORE COORDINATES. Next coordinates by default:${JSON.stringify(nextCoordinates)}`;
             coordinates.push(nextCoordinates);
         }
-        print(g, coordinates, message);
+        printToHtml(g, coordinates, message);
         return;
     }
 
@@ -32,7 +37,7 @@ function run(g, coordinates, speedX = 1, speedY = 0, currentIndex = 0) {
     }
 
     if (errorMessage) {
-        print(g, coordinates, `Error: ${errorMessage}. Current index: ${currentIndex + 1}`);
+        printToHtml(g, coordinates, `Error: ${errorMessage}. Current index: ${currentIndex + 1}`);
         return;
     }
 
@@ -47,11 +52,13 @@ function isDiffWrong(newSpeed, speed) {
         return isDiffWrong(Math.abs(newSpeed), Math.abs(speed))
     }
 
-    return Math.abs(newSpeed + speed) > 1;
+    // this is not correct for -1, 1
+    return !((newSpeed === -1 && speed === 0) || (newSpeed === 0 && speed === -1));
 
 }
 
-function print2(g, coordinates) {
+
+function printToConsole(g, coordinates) {
     const graph = cloneDeep(g);
     for (let i = 0; i < coordinates.length; i++) {
         const c = coordinates[i];
@@ -63,7 +70,7 @@ function print2(g, coordinates) {
     console.log("==========================");
 }
 
-function print(g, coordinates, message) {
+function printToHtml(g, coordinates, message) {
     const graph = cloneDeep(g);
     for (let i = 0; i < coordinates.length; i++) {
         const c = coordinates[i];
@@ -76,7 +83,7 @@ function print(g, coordinates, message) {
         .c-2 { color: green } 
         .c-3 { color: green; } 
         .c-X { color: red; }
-        .c-N { color: yellow }
+        .c-N { color: blue }
     </style>
     <h4>${message}</h4>`
 
@@ -88,7 +95,7 @@ function print(g, coordinates, message) {
         }
         a += "</div>"
     }
-    writeFileSync("./asd.html", a, { encoding: "UTF-8" });
+    writeFileSync("./solution.html", a, { encoding: "UTF-8" });
 
 }
 

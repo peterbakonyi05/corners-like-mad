@@ -52,9 +52,7 @@ function isDiffWrong(newSpeed, speed) {
         return isDiffWrong(Math.abs(newSpeed), Math.abs(speed))
     }
 
-    // this is not correct for -1, 1
     return !((newSpeed === -1 && speed === 0) || (newSpeed === 0 && speed === -1));
-
 }
 
 
